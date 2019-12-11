@@ -1447,12 +1447,24 @@ func (exp *explorerUI) DecodeTxPage(w http.ResponseWriter, r *http.Request) {
 
 // Charts handles the charts displays showing the various charts plotted.
 func (exp *explorerUI) Charts(w http.ResponseWriter, r *http.Request) {
+	// The actual reward of a ticket needs to also take into consideration the
+	// ticket maturity (time from ticket purchase until its eligible to vote)
+	// and coinbase maturity (time after vote until funds distributed to ticket
+	// holder are available to use).
+	avgSSTxToSSGenMaturity := exp.MeanVotingBlocks +
+		int64(exp.ChainParams.TicketMaturity) +
+		int64(exp.ChainParams.CoinbaseMaturity)
+	rewardPeriod := fmt.Sprintf("%.2f Days", float64(avgSSTxToSSGenMaturity)*
+		exp.ChainParams.TargetTimePerBlock.Hours()/24)
+
 	str, err := exp.templates.exec("charts", struct {
 		*CommonPageData
-		Premine int64
+		Premine      int64
+		RewardPeriod string
 	}{
 		CommonPageData: exp.commonData(r),
 		Premine:        exp.premine,
+		RewardPeriod:   rewardPeriod,
 	})
 	if err != nil {
 		log.Errorf("Template execute failure: %v", err)
