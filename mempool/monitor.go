@@ -15,6 +15,7 @@ import (
 	"github.com/decred/dcrd/blockchain/standalone"
 	"github.com/decred/dcrd/chaincfg/chainhash"
 	"github.com/decred/dcrd/chaincfg/v2"
+	"github.com/decred/dcrd/dcrutil/v2"
 	chainjson "github.com/decred/dcrd/rpc/jsonrpc/types/v2"
 	exptypes "github.com/decred/dcrdata/explorer/types/v2"
 	pstypes "github.com/decred/dcrdata/pubsub/types/v3"
@@ -330,6 +331,13 @@ func (p *MempoolMonitor) TxHandler(rawTx *chainjson.TxRawResult) error {
 		p.inventory.LikelyMineable.FormattedSize = humanize.Bytes(uint64(p.inventory.LikelyMineable.Size))
 		p.inventory.LikelyMineable.Total += tx.TotalOut
 		p.inventory.LikelyMineable.Count++
+		if !txhelpers.IsStakeTx(msgTx) {
+			_, mixDenom, mixCount := txhelpers.IsMixTx(msgTx)
+			if mixCount == 0 {
+				_, mixDenom, mixCount = txhelpers.IsMixedSplitTx(msgTx, txhelpers.DefaultRelayFeePerKb, p.lastBlock.TicketPrice)
+			}
+			p.inventory.LikelyMineable.Mixed += dcrutil.Amount(mixDenom).ToCoin()
+		}
 	}
 	p.inventory.FormattedTotalSize = humanize.Bytes(uint64(p.inventory.TotalSize))
 	p.inventory.Unlock()
@@ -368,7 +376,7 @@ func (p *MempoolMonitor) Refresh() (*StakeData, []exptypes.MempoolTx, *exptypes.
 
 	// Pre-sort the txs so other consumers will not have to do it.
 	sort.Sort(exptypes.MPTxsByTime(txs))
-	inventory := ParseTxns(txs, p.params, &stakeData.LatestBlock)
+	inventory := ParseTxns(txs, p.params, &stakeData.LatestBlock, txnsStore)
 
 	// Reset the counter for tickets since last report.
 	p.mtx.Lock()

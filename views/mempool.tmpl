@@ -21,14 +21,21 @@
                     </div>
                     <div class="row">
                         <div class="col-24 col-md-12 col-lg-24 col-xl-12 row pb-2 pb-sm-3 pt-2 pt-md-0 pt-lg-2 pt-xl-0">
-                            <div class="col-12 text-center">
+                            <div class="col-8 text-center">
                                 <div class="d-inline-block text-center text-md-left text-lg-center text-xl-left">
                                     <span class="text-secondary fs13">Total Sent</span>
                                     <br>
                                     <span class="h4" data-target="mempool.likelyTotal">{{threeSigFigs .LikelyMineable.Total}}</span> <span class="text-secondary">DCR</span>
                                 </div>
                             </div>
-                            <div class="col-12 text-center">
+                            <div class="col-8 text-center">
+                                <div class="d-inline-block text-center text-md-left text-lg-center text-xl-left">
+                                    <span class="text-secondary fs13">Mixed</span>
+                                    <br>
+                                    <span class="h4" data-target="mempool.likelyTotal">{{threeSigFigs .LikelyMineable.Mixed}}</span> <span class="text-secondary">DCR</span>
+                                </div>
+                            </div>
+                            <div class="col-8 text-center">
                                 <div class="d-inline-block text-center text-md-left text-lg-center text-xl-left">
                                     <span class="text-secondary fs13">Last Block</span>
                                     <br>

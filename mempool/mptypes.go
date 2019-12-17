@@ -21,9 +21,10 @@ type MempoolInfo struct {
 
 // BlockID provides basic identifying information about a block.
 type BlockID struct {
-	Hash   chainhash.Hash
-	Height int64
-	Time   int64
+	Hash        chainhash.Hash
+	Height      int64
+	Time        int64
+	TicketPrice int64
 }
 
 // MinableFeeInfo describes the ticket fees

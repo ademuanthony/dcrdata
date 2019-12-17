@@ -282,11 +282,13 @@ func (t *MempoolDataCollector) Collect() (*StakeData, []exptypes.MempoolTx, txhe
 		targetFeeWindow,
 	}
 
+	ticketAmount, _ := dcrutil.NewAmount(header.SBits)
 	mpoolData := &StakeData{
 		LatestBlock: BlockID{
-			Hash:   *hash,
-			Height: height,
-			Time:   blockTime,
+			Hash:        *hash,
+			Height:      height,
+			Time:        blockTime,
+			TicketPrice: int64(ticketAmount),
 		},
 		Time:       now,
 		NumTickets: feeInfo.FeeInfoMempool.Number,
@@ -308,7 +310,7 @@ const NumLatestMempoolTxns = 5
 
 // ParseTxns analyzes the mempool transactions in the txs slice, and generates a
 // MempoolInfo summary with categorized transactions.
-func ParseTxns(txs []exptypes.MempoolTx, params *chaincfg.Params, lastBlock *BlockID) *exptypes.MempoolInfo {
+func ParseTxns(txs []exptypes.MempoolTx, params *chaincfg.Params, lastBlock *BlockID, txnsStore txhelpers.TxnsStore) *exptypes.MempoolInfo {
 	// The txs slice needs to be sorted by time, but we do not want to modify
 	// the slice outside of this function and we do not want to waste time
 	// copying it if it is already sorted. So, make a copy and sort only if it
@@ -349,7 +351,7 @@ func ParseTxns(txs []exptypes.MempoolTx, params *chaincfg.Params, lastBlock *Blo
 	var latestTime int64
 	var totalOut, regularTotal, ticketTotal, voteTotal, revTotal dcrutil.Amount
 	var likelyMineable bool
-	var likelyTotal dcrutil.Amount
+	var likelyTotal, likelyMixed dcrutil.Amount
 	var totalSize, likelySize int32
 	var numLikely int
 
@@ -418,6 +420,17 @@ func ParseTxns(txs []exptypes.MempoolTx, params *chaincfg.Params, lastBlock *Blo
 		totalOut += out
 		totalSize += tx.Size
 
+		if txHash, err := chainhash.NewHashFromStr(tx.TxID); err == nil {
+			if msgTx, found := txnsStore[*txHash]; found  && !txhelpers.IsStakeTx(msgTx.Tx) {
+				_, mixDenom, mixCount := txhelpers.IsMixTx(msgTx.Tx)
+				if mixCount == 0 {
+					_, mixDenom, mixCount = txhelpers.IsMixedSplitTx(msgTx.Tx, txhelpers.DefaultRelayFeePerKb, lastBlock.TicketPrice)
+				}
+				likelyMixed += dcrutil.Amount(mixDenom)
+			}
+		}
+
+
 		if latestTime < tx.Time {
 			latestTime = tx.Time
 		}
@@ -443,6 +456,7 @@ func ParseTxns(txs []exptypes.MempoolTx, params *chaincfg.Params, lastBlock *Blo
 			NumAll:             len(txs),
 			LikelyMineable: exptypes.LikelyMineable{
 				Total:         likelyTotal.ToCoin(),
+				Mixed:		   likelyMixed.ToCoin(),
 				Size:          likelySize,
 				FormattedSize: humanize.Bytes(uint64(likelySize)),
 				RegularTotal:  regularTotal.ToCoin(),

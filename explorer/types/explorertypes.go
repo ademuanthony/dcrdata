@@ -657,6 +657,7 @@ type MempoolShort struct {
 // on non-tip blocks and multiple votes that spend the same ticket.
 type LikelyMineable struct {
 	Total         float64 `json:"total"`
+	Mixed		  float64 `json:"mixed"`
 	Size          int32   `json:"size"`
 	FormattedSize string  `json:"formatted_size"`
 	RegularTotal  float64 `json:"regular_total"`
