@@ -22,11 +22,12 @@ function txList (mempool) {
   return l
 }
 
-function makeTx (txid, txType, total, voteInfo, size) {
+function makeTx (txid, txType, total, voteInfo, size, mixed) {
   return {
     txid: txid,
     type: txType,
     total: total,
+    mixed: mixed,
     voteInfo: voteInfo, // null for all but votes
     size: size
   }
@@ -38,7 +39,7 @@ function ticketSpent (vote) {
 }
 
 function reduceTx (tx) {
-  return makeTx(tx.txid, tx.Type, tx.total, tx.vote_info, tx.size)
+  return makeTx(tx.txid, tx.Type, tx.total, tx.vote_info, tx.size, tx.mixed)
 }
 
 export default class Mempool {
@@ -56,7 +57,7 @@ export default class Mempool {
   initType (txType, total, count, avgSize) {
     var fauxVal = count === 0 ? 0 : total / count
     for (var i = 0; i < count; i++) {
-      this.mempool.push(makeTx('', txType, fauxVal, null, avgSize))
+      this.mempool.push(makeTx('', txType, fauxVal, null, avgSize, 0))
     }
   }
 
@@ -71,7 +72,7 @@ export default class Mempool {
             validity: i < affirmed
           },
           ticket_spent: i
-        }, avgSize))
+        }, avgSize, 0))
       }
     })
   }
@@ -154,10 +155,11 @@ export default class Mempool {
   totals () {
     return this.mempool.reduce((d, tx) => {
       d.total += tx.total
+      d.newlyMixed += tx.mixed
       d[mpKeys[tx.type]] += tx.total
       d.size += tx.size
       return d
-    }, { regular: 0, ticket: 0, vote: 0, rev: 0, total: 0, size: 0 })
+    }, { regular: 0, ticket: 0, vote: 0, rev: 0, total: 0, size: 0, newlyMixed: 0 })
   }
 
   voteSpans (tallys) {

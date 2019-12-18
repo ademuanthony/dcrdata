@@ -360,6 +360,19 @@ func ParseTxns(txs []exptypes.MempoolTx, params *chaincfg.Params, lastBlock *Blo
 
 	for _, tx := range txs {
 		likelyMineable = true
+
+		if txHash, err := chainhash.NewHashFromStr(tx.TxID); err == nil {
+			if msgTx, found := txnsStore[*txHash]; found  && !txhelpers.IsStakeTx(msgTx.Tx) {
+				_, mixDenom, mixCount := txhelpers.IsMixTx(msgTx.Tx)
+				if mixCount == 0 {
+					_, mixDenom, mixCount = txhelpers.IsMixedSplitTx(msgTx.Tx, txhelpers.DefaultRelayFeePerKb, lastBlock.TicketPrice)
+				}
+				newlyMixed := dcrutil.Amount(mixDenom * int64(mixCount))
+				likelyMixed += newlyMixed
+				tx.Mixed = newlyMixed.ToCoin()
+			}
+		}
+
 		out, _ := dcrutil.NewAmount(tx.TotalOut) // 0 for invalid amounts
 		switch tx.Type {
 		case "Ticket":
@@ -419,17 +432,6 @@ func ParseTxns(txs []exptypes.MempoolTx, params *chaincfg.Params, lastBlock *Blo
 		}
 		totalOut += out
 		totalSize += tx.Size
-
-		if txHash, err := chainhash.NewHashFromStr(tx.TxID); err == nil {
-			if msgTx, found := txnsStore[*txHash]; found  && !txhelpers.IsStakeTx(msgTx.Tx) {
-				_, mixDenom, mixCount := txhelpers.IsMixTx(msgTx.Tx)
-				if mixCount == 0 {
-					_, mixDenom, mixCount = txhelpers.IsMixedSplitTx(msgTx.Tx, txhelpers.DefaultRelayFeePerKb, lastBlock.TicketPrice)
-				}
-				likelyMixed += dcrutil.Amount(mixDenom)
-			}
-		}
-
 
 		if latestTime < tx.Time {
 			latestTime = tx.Time

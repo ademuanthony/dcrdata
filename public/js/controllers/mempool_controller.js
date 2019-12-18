@@ -87,6 +87,7 @@ export default class extends Controller {
       'revTotal',
       'revCount',
       'likelyTotal',
+      'newlyMixed',
       'mempoolSize'
     ]
   }
@@ -167,6 +168,7 @@ export default class extends Controller {
     this.revCountTarget.textContent = counts.rev
 
     this.likelyTotalTarget.textContent = humanize.threeSigFigs(totals.total)
+    this.newlyMixedTarget.textContent = humanize.threeSigFigs(totals.newlyMixed)
     this.mempoolSizeTarget.textContent = humanize.bytes(totals.size)
 
     this.labelVotes()

@@ -336,7 +336,9 @@ func (p *MempoolMonitor) TxHandler(rawTx *chainjson.TxRawResult) error {
 			if mixCount == 0 {
 				_, mixDenom, mixCount = txhelpers.IsMixedSplitTx(msgTx, txhelpers.DefaultRelayFeePerKb, p.lastBlock.TicketPrice)
 			}
-			p.inventory.LikelyMineable.Mixed += dcrutil.Amount(mixDenom).ToCoin()
+			newlyMixed := dcrutil.Amount(mixDenom * int64(mixCount)).ToCoin()
+			p.inventory.LikelyMineable.Mixed += newlyMixed
+			tx.Mixed = newlyMixed
 		}
 	}
 	p.inventory.FormattedTotalSize = humanize.Bytes(uint64(p.inventory.TotalSize))
