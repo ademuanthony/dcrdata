@@ -27,6 +27,7 @@ function txTableRow (tx) {
           ${alertArea()}
           </td>
         <td class="mono fs15 text-right">${humanize.decimalParts(tx.total, false, 8)}</td>
+        <td class="mono fs15 text-right">${humanize.decimalParts(tx.mixed, false, 8)}</td>
         <td class="mono fs15 text-right">${tx.size} B</td>
         <td class="mono fs15 text-right" data-target="time.age" data-age="${tx.time}">${humanize.timeSince(tx.time)}</td>
     </tr>`)
