@@ -338,7 +338,8 @@ func (p *MempoolMonitor) TxHandler(rawTx *chainjson.TxRawResult) error {
 			}
 			newlyMixed := dcrutil.Amount(mixDenom * int64(mixCount)).ToCoin()
 			p.inventory.LikelyMineable.Mixed += newlyMixed
-			tx.Mixed = newlyMixed
+			tx.MixCount = mixCount
+			tx.MixDenom = mixDenom
 		}
 	}
 	p.inventory.FormattedTotalSize = humanize.Bytes(uint64(p.inventory.TotalSize))

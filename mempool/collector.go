@@ -369,7 +369,8 @@ func ParseTxns(txs []exptypes.MempoolTx, params *chaincfg.Params, lastBlock *Blo
 				}
 				newlyMixed := dcrutil.Amount(mixDenom * int64(mixCount))
 				likelyMixed += newlyMixed
-				tx.Mixed = newlyMixed.ToCoin()
+				tx.MixDenom = mixDenom
+				tx.MixCount = mixCount
 			}
 		}
 

@@ -174,7 +174,6 @@
                             <tr>
                               <th>Transaction ID</th>
                               <th class="text-right">Total DCR</th>
-                              <th class="text-right">Total Mixed DCR</th>
                               <th class="text-right">Size</th>
                               <th class="text-right">Time in Mempool</th>
                             </tr>
@@ -189,9 +188,6 @@
                                   </td>
                                   <td class="mono fs15 text-right">
                                     {{template "decimalParts" (float64AsDecimalParts .TotalOut 8 false)}}
-                                  </td>
-                                  <td class="mono fs15 text-right">
-                                      {{template "decimalParts" (float64AsDecimalParts .Mixed 8 false)}}
                                   </td>
                                   <td class="mono fs15 text-right">{{.Size}} B</td>
                                   <td class="mono fs15 text-right" data-target="time.age" data-age="{{.Time}}"></td>
@@ -252,7 +248,7 @@
                             <tr>
                               <th>Transaction ID</th>
                               <th class="text-right">Total DCR</th>
-                              <th class="text-right">Mixed DCR</th>
+                              <th class="text-right">Mixed</th>
                               <th class="text-right">Size</th>
                               <th class="text-right">Time in Mempool</th>
                             </tr>
@@ -269,7 +265,11 @@
                                     {{template "decimalParts" (float64AsDecimalParts .TotalOut 8 false)}}
                                   </td>
                                   <td class="mono fs15 text-right">
-                                      {{template "decimalParts" (float64AsDecimalParts .Mixed 8 false)}}
+                                      {{ if gt .MixCount 0 -}}
+                                          {{.MixCount}}x {{template "decimalParts" (amountAsDecimalParts .MixDenom false)}}
+                                      {{ else }}
+                                          -
+                                      {{- end}}
                                   </td>
                                   <td class="mono fs15 text-right">{{.Size}} B</td>
                                   <td class="mono fs15 text-right" data-target="time.age" data-age="{{.Time}}"></td>

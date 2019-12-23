@@ -155,7 +155,7 @@ export default class Mempool {
   totals () {
     return this.mempool.reduce((d, tx) => {
       d.total += tx.total
-      d.newlyMixed += tx.mixed
+      d.newlyMixed += tx.mix_count * tx.mix_denom
       d[mpKeys[tx.type]] += tx.total
       d.size += tx.size
       return d

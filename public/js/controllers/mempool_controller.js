@@ -20,6 +20,10 @@ function rowNode (rowText) {
 }
 
 function txTableRow (tx) {
+  console.log(tx)
+  const mixedCol = tx.mix_count > 1
+    ? `<td class="mono fs15 text-right">${tx.mix_count}x ${humanize.decimalParts(tx.mix_denom, false, 8)}</td>`
+    : '<td class="mono fs15 text-right">-</td>'
   return rowNode(`<tr class="flash">
         <td class="break-word clipboard">
           <a class="hash" href="/tx/${tx.hash}" title="${tx.hash}">${tx.hash}</a>
@@ -27,7 +31,7 @@ function txTableRow (tx) {
           ${alertArea()}
           </td>
         <td class="mono fs15 text-right">${humanize.decimalParts(tx.total, false, 8)}</td>
-        <td class="mono fs15 text-right">${humanize.decimalParts(tx.mixed, false, 8)}</td>
+        ${tx.Type === 'Ticket' ? '' : mixedCol}
         <td class="mono fs15 text-right">${tx.size} B</td>
         <td class="mono fs15 text-right" data-target="time.age" data-age="${tx.time}">${humanize.timeSince(tx.time)}</td>
     </tr>`)
@@ -62,7 +66,7 @@ function buildTable (target, txType, txns, rowFn) {
 }
 
 function addTxRow (tx, target, rowFn) {
-  if (target.childElementCount === 1 && target.firstChild.classList.contains('no-tx-tr')) {
+  if (target.childElementCount === 1 && target.firstChild.classList && target.firstChild.classList.contains('no-tx-tr')) {
     target.removeChild(target.firstChild)
   }
   target.insertBefore(rowFn(tx), target.firstChild)
