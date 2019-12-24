@@ -878,7 +878,7 @@ type MempoolTx struct {
 	Time      int64          `json:"time"`
 	Size      int32          `json:"size"`
 	TotalOut  float64        `json:"total"`
-	MixDenom  int64          `json:"mix_denom"`
+	MixDenom  float64        `json:"mix_denom"`
 	MixCount  uint32         `json:"mix_count"`
 
 	// Consider atom representation:
