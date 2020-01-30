@@ -420,7 +420,13 @@ export default class extends Controller {
   }
 
   setAllValues (targets, data) {
-    targets.forEach((n) => { n.innerHTML = data })
+    targets.forEach((n) => {
+      if (n.hasOwnProperty('value')) {
+        n.value = data
+      } else {
+        n.innerHTML = data
+      }
+    })
   }
 
   setAllInputs (targets, data) {
